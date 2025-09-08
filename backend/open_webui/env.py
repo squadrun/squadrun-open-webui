@@ -127,7 +127,10 @@ ENV = os.environ.get("ENV", "dev")
 FROM_INIT_PY = os.environ.get("FROM_INIT_PY", "False").lower() == "true"
 
 if FROM_INIT_PY:
-    PACKAGE_DATA = {"version": importlib.metadata.version("open-webui")}
+    try:
+        PACKAGE_DATA = {"version": importlib.metadata.version("open-webui")}
+    except importlib.metadata.PackageNotFoundError:
+        PACKAGE_DATA = {"version": "prod"}  # fallback for running from folder
 else:
     try:
         PACKAGE_DATA = json.loads((BASE_DIR / "package.json").read_text())

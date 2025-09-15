@@ -793,3 +793,4 @@ PIP_PACKAGE_INDEX_OPTIONS = os.getenv("PIP_PACKAGE_INDEX_OPTIONS", "").split()
 ####################################
 
 EXTERNAL_PWA_MANIFEST_URL = os.environ.get("EXTERNAL_PWA_MANIFEST_URL")
+SENTRY_DSN = os.environ.get("SENTRY_DSN", "")

@@ -13,6 +13,8 @@ from uuid import uuid4
 
 from contextlib import asynccontextmanager
 from urllib.parse import urlencode, parse_qs, urlparse
+
+import sentry_sdk
 from pydantic import BaseModel
 from sqlalchemy import text
 
@@ -434,7 +436,7 @@ from open_webui.env import (
     ENABLE_VERSION_UPDATE_CHECK,
     ENABLE_OTEL,
     EXTERNAL_PWA_MANIFEST_URL,
-    AIOHTTP_CLIENT_SESSION_SSL,
+    AIOHTTP_CLIENT_SESSION_SSL, SENTRY_DSN,
 )
 
 
@@ -918,6 +920,17 @@ app.state.rf = None
 app.state.YOUTUBE_LOADER_TRANSLATION = None
 
 
+sentry_sdk.init(
+    dsn=SENTRY_DSN,
+    # Add data like request headers and IP for users,
+    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+    send_default_pii=True,
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for tracing.
+    traces_sample_rate=0.1,
+)
+
+
 try:
     app.state.ef = get_ef(
         app.state.config.RAG_EMBEDDING_ENGINE,
@@ -1157,6 +1170,10 @@ if ENABLE_COMPRESSION_MIDDLEWARE:
 
 app.add_middleware(RedirectMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
+
+@app.get("/sentry-debug")
+async def trigger_error():
+    division_by_zero = 1 / 0
 
 
 @app.middleware("http")

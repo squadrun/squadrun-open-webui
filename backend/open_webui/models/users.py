@@ -169,6 +169,9 @@ class UsersTable:
             db.commit()
             db.refresh(result)
             if result:
+                # Assign user to default group if specified
+                from open_webui.utils.user_groups import assign_user_to_default_group
+                assign_user_to_default_group(user.id, user.email)
                 return user
             else:
                 return None

@@ -127,7 +127,10 @@ ENV = os.environ.get("ENV", "dev")
 FROM_INIT_PY = os.environ.get("FROM_INIT_PY", "False").lower() == "true"
 
 if FROM_INIT_PY:
-    PACKAGE_DATA = {"version": importlib.metadata.version("open-webui")}
+    try:
+        PACKAGE_DATA = {"version": importlib.metadata.version("open-webui")}
+    except importlib.metadata.PackageNotFoundError:
+        PACKAGE_DATA = {"version": "prod"}  # fallback for running from folder
 else:
     try:
         PACKAGE_DATA = json.loads((BASE_DIR / "package.json").read_text())
@@ -790,3 +793,4 @@ PIP_PACKAGE_INDEX_OPTIONS = os.getenv("PIP_PACKAGE_INDEX_OPTIONS", "").split()
 ####################################
 
 EXTERNAL_PWA_MANIFEST_URL = os.environ.get("EXTERNAL_PWA_MANIFEST_URL")
+SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
